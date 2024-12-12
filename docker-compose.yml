@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: datawarehouse
+    ports:
+      - "5433:5432"
+    networks:
+      - app_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api:
+    build: 
+      context: ./app
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5433/datawarehouse
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    deploy:
+      replicas: 5
+    ports:
+      - "8000"
+    
+  nginx:
+      image: nginx:latest
+      container_name: nginx
+      ports:
+        - "8080:80"
+      volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf
+      depends_on:
+        - api
+      networks:
+        - app_network
+
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
