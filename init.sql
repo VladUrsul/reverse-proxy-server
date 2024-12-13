@@ -7,3 +7,5 @@
 -- -- Set up the WAL (Write-Ahead Log) level for replication
 -- ALTER SYSTEM SET wal_level = replica;
 -- SELECT pg_reload_conf();
+-- init.sql
+CREATE DATABASE IF NOT EXISTS datawarehouse;
